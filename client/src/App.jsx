@@ -25,11 +25,11 @@ function App() {
       <Routes>
         <Route path={RouteIndex} element={<Layout />}>
           <Route index element={<Index />} />
-          <Route path={RouteProfile} element={<Profile />}></Route>
-          <Route path={RouteProfile} element={<Profile />}></Route>
-          <Route path={RouteAddCategory} element={<AddCategory />}></Route>
-          <Route path={RouteEditCategory()} element={<EditCategory />}></Route>
-          <Route path={RouteCategories} element={<CategoryDetails />}></Route>
+          <Route path={RouteProfile} element={<Profile />} />
+          <Route path={RouteAddCategory} element={<AddCategory />} />
+          <Route path="/category/edit/:id" element={<EditCategory />} />{" "}
+          {/* ✅ Fixed */}
+          <Route path={RouteCategories} element={<CategoryDetails />} />
         </Route>
         <Route path={RouteSignIn} element={<SignIn />} />
         <Route path={RouteSignUp} element={<SignUp />} />

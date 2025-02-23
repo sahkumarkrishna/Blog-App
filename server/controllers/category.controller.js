@@ -22,8 +22,12 @@ export const addCategory = async (req, res, next) => {
 // Show All Categories
 export const showCategory = async (req, res, next) => {
   try {
-    const categories = await Category.find();
-    res.status(200).json({ success: true, categories });
+    const { category_Id } = req.params;
+    const category = await Category.findById(category_Id);
+    if (!category) {
+      return next(handleError(404, "Category not found"));
+    }
+    res.status(200).json({ success: true, category });
   } catch (error) {
     return next(handleError(500, error.message));
   }
@@ -32,11 +36,11 @@ export const showCategory = async (req, res, next) => {
 // Edit Category
 export const updateCategory = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { category_Id } = req.params;
     const { name, slug } = req.body;
 
     const updatedCategory = await Category.findByIdAndUpdate(
-      id,
+      category_Id,
       { name, slug },
       { new: true, runValidators: true }
     );
@@ -56,9 +60,9 @@ export const updateCategory = async (req, res, next) => {
 // Delete Category
 export const deleteCategory = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { category_Id } = req.params;
 
-    const deletedCategory = await Category.findByIdAndDelete(id);
+    const deletedCategory = await Category.findByIdAndDelete(category_Id);
     if (!deletedCategory) {
       return next(handleError(404, "Category not found"));
     }

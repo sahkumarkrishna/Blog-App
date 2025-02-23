@@ -16,12 +16,12 @@ CategoryRoute.post("/add", addCategory);
 CategoryRoute.get("/all", getAllCategory);
 
 // Get a single category by ID
-CategoryRoute.get("/:id", showCategory);
+CategoryRoute.get("/:category_Id", showCategory);
 
 // Update a category
-CategoryRoute.put("/:id", updateCategory);
+CategoryRoute.put("/:category_Id", updateCategory);
 
 // Delete a category
-CategoryRoute.delete("/:id", deleteCategory);
+CategoryRoute.delete("/:category_Id", deleteCategory);
 
 export default CategoryRoute;

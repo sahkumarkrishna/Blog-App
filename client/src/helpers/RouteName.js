@@ -6,7 +6,7 @@ export const RouteCategoryDetails = "/categories";
 export const RouteAddCategory = "/category/add";
 export const RouteEditCategory = (category_Id) => {
   if (category_Id) {
-    return `/category/edit/${category_Id}`;
+  return`/category/edit/${id}`;
   } else {
     return `/category/edit/category_Id`;
   }
