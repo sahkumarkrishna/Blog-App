@@ -31,10 +31,9 @@ const AddCategory = () => {
       slug: "",
     },
   });
-
+  const categoryName = form.watch("name");
   // ✅ FIXED: Optimized useEffect to run only when name changes
   useEffect(() => {
-    const categoryName = form.watch("name");
     if (categoryName) {
       const slug = slugify(categoryName, { lower: true });
       form.setValue("slug", slug);
@@ -51,7 +50,7 @@ const AddCategory = () => {
       showToast("success", response.data.message);
       form.reset();
     } catch (error) {
-      showToast("error", error.response?.data?.message);
+      showToast("error", error.message);
     }
   }
 

@@ -59,8 +59,7 @@ const SignUp = () => {
       showToast("success", response.data.message);
       navigate(RouteSignIn);
     } catch (error) {
-      console.error("Registration Error:", error.message);
-      
+       showToast("error", error.message);
     }
   }
 

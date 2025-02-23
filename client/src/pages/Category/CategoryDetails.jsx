@@ -10,41 +10,48 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
-import { useFetch } from "@/hooks/userFetch";
+import { useFetch } from "@/hooks/useFetch"; // Ensure correct import
 import { getEnv } from "@/helpers/getEnv";
 import Loading from "@/components/Loading";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
-import axios from "axios";
 import { showToast } from "@/helpers/showToast";
+import { deleteData } from "@/helpers/handleDelete";
 
 const CategoryDetails = () => {
+  const [deletingId, setDeletingId] = useState(null); // Track which category is deleting
+
   const {
     data: categoryData,
     loading,
     error,
-    refetch,
+    refetch, // Ensure refetch is available
   } = useFetch(`${getEnv("VITE_API_BASE_URL")}/category/all`);
 
-  const [isDeleting, setIsDeleting] = useState(false);
+  const handleDelete = async (id) => {
+   
 
-  // Function to delete a category
-  const handleDelete = async (categoryId) => {
-    if (!window.confirm("Are you sure you want to delete this category?")) return;
-
-    setIsDeleting(true);
+    setDeletingId(id); // Set deleting state for this category
     try {
-      const response = await axios.delete(`${getEnv("VITE_API_BASE_URL")}/category/${categoryId}`);
-      showToast("success", response.data.message);
-      refetch(); // Refresh the category list after deleting
+      const success = await deleteData(
+        `${getEnv("VITE_API_BASE_URL")}/category/${id}`
+      );
+
+      if (success) {
+      
+        refetch(); // Refresh category list after deletion
+      }
     } catch (error) {
-      showToast("error", "Failed to delete category");
+      showToast(
+        "error",
+        error.response?.data?.message || "An error occurred while deleting."
+      );
     } finally {
-      setIsDeleting(false);
+      setDeletingId(null); // Reset deleting state
     }
   };
 
   if (loading) return <Loading />;
-  
+
   return (
     <div>
       <Card>
@@ -54,10 +61,8 @@ const CategoryDetails = () => {
           </Button>
         </CardHeader>
         <CardContent>
-          {/* Show error if exists */}
           {error && <p className="text-red-500">{error}</p>}
 
-          {/* Show categories if data exists */}
           {categoryData?.categories?.length > 0 ? (
             <Table>
               <TableHeader>
@@ -74,7 +79,11 @@ const CategoryDetails = () => {
                     <TableCell>{category.slug}</TableCell>
                     <TableCell className="flex gap-3">
                       {/* Edit Button */}
-                      <Button variant="outline" className="hover:bg-violet-500 hover:text-white" asChild>
+                      <Button
+                        variant="outline"
+                        className="hover:bg-violet-500 hover:text-white"
+                        asChild
+                      >
                         <Link to={`/category/edit/${category._id}`}>
                           <FaEdit />
                         </Link>
@@ -83,11 +92,15 @@ const CategoryDetails = () => {
                       {/* Delete Button */}
                       <Button
                         variant="outline"
-                        className="hover:bg-red-500 hover:text-white"
+                        className="hover:bg-violet-500 hover:text-white"
                         onClick={() => handleDelete(category._id)}
-                        disabled={isDeleting}
+                        disabled={deletingId === category._id} // Disable only the deleting button
                       >
-                        <FaTrashAlt />
+                        {deletingId === category._id ? (
+                          "Deleting..."
+                        ) : (
+                          <FaTrashAlt />
+                        )}
                       </Button>
                     </TableCell>
                   </TableRow>

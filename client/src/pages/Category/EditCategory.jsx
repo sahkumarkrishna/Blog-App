@@ -21,8 +21,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const EditCategory = () => {
   const { id } = useParams(); // Get category ID from the URL
-  const navigate = useNavigate();
-
+ 
   const formSchema = z.object({
     name: z.string().min(3, "Name must be at least 3 characters long"),
     slug: z.string().min(3, "Slug must be at least 3 characters long"),
@@ -43,13 +42,12 @@ const EditCategory = () => {
         const response = await axios.get(
           `${getEnv("VITE_API_BASE_URL")}/category/${id}`
         );
-        form.setValue("name", response.data.name);
-        form.setValue("slug", response.data.slug);
+        form.setValue("name", response.data.category.name);
+
+        form.setValue("slug", response.data.category.slug);
+        showToast("success", response.data.message);
       } catch (error) {
-        showToast(
-          "error",
-          error.response?.data?.message || "Error fetching category"
-        );
+        showToast("error", error.message);
       }
     };
 
@@ -68,13 +66,10 @@ const EditCategory = () => {
   async function onSubmit(values) {
     try {
       await axios.put(`${getEnv("VITE_API_BASE_URL")}/category/${id}`, values);
-      showToast("success", "Category updated successfully!");
-      navigate("/category/all"); // Redirect to category list
+
+      
     } catch (error) {
-      showToast(
-        "error",
-        error.response?.data?.message || "Error updating category"
-      );
+      showToast("error", error.message);
     }
   }
 
