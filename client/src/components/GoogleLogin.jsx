@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FcGoogle } from "react-icons/fc";
 import { signInWithPopup } from "firebase/auth";
@@ -13,8 +13,12 @@ import { setUser } from "@/redux/user/user.Slice";
 const GoogleLogin = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   const handleLogin = async () => {
+    if (isPopupOpen) return;
+
+    setIsPopupOpen(true);
     try {
       const googleResponse = await signInWithPopup(auth, provider);
       const user = googleResponse.user;
@@ -35,6 +39,8 @@ const GoogleLogin = () => {
     } catch (error) {
       console.error("Google Login Error:", error);
       showToast("error", error.response?.data?.message || error.message);
+    } finally {
+      setIsPopupOpen(false);
     }
   };
 

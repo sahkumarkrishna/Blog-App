@@ -14,6 +14,7 @@ import { IoHome } from "react-icons/io5";
 import { BiSolidCategory } from "react-icons/bi";
 import { FaBlog, FaComment, FaUserTie } from "react-icons/fa";
 import { GoDotFill } from "react-icons/go";
+import { RouteCategoryDetails } from "@/helpers/RouteName";
 
 const AppSidebar = () => {
   return (
@@ -33,7 +34,7 @@ const AppSidebar = () => {
           <SidebarMenuItem>
             <SidebarMenuButton>
               <BiSolidCategory />
-              <Link to="/">Categories</Link>
+              <Link to={RouteCategoryDetails}>Categories</Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
 

@@ -52,23 +52,16 @@ const SignIn = () => {
         { withCredentials: true }
       );
 
-      // ✅ Ensure the user data structure is correct
-      const userData = {
-        id: response.data.user.id,
-        email: response.data.user.email,
-        avatar: response.data.user.avatar || "", // Default to empty string if not provided
-        isLogged: true,
-      };
-
-      // ✅ Dispatch user data to Redux store
-      dispatch(setUser(userData));
-
-      showToast("success", response.data.message);
-      navigate(RouteIndex);
-    } catch (error) {
-      console.error("Login Error:", error);
-      showToast("error", error.response?.data?.message || error.message);
-    }
+      if (response.data.success) {
+        dispatch(setUser(response.data.user));
+        navigate(RouteIndex);
+      }
+        showToast("success", response.data.message);
+        
+       } catch (error) {
+      
+         showToast("error", error.message);
+       }
   }
 
   return (

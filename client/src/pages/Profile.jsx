@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,22 +15,41 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getEnv } from "@/helpers/getEnv";
 import { showToast } from "@/helpers/showToast";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
-import axios from "axios"; // ✅ Import axios
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { RouteIndex } from "@/helpers/RouteName";
 import { Textarea } from "@/components/ui/textarea";
+import { useFetch } from "@/hooks/userFetch";
+import Loading from "@/components/Loading";
+import { CiCamera } from "react-icons/ci";
+import Dropzone from "react-dropzone";
+
 const Profile = () => {
+  const [filePreview, setFilePreview] = useState();
+  const [file,setFile]=useState()
+
+  const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // ✅ Corrected Zod Validation Schema
+  const {
+    data: userData,
+    loading,
+    error,
+  } = useFetch(
+    user.user?._id
+      ? `${getEnv("VITE_API_BASE_URL")}/user/get-user/${user.user._id}`
+      : null
+  );
+
+  // ✅ Zod Validation Schema
   const formSchema = z.object({
     name: z.string().min(3, "Name must be at least 3 characters long"),
     email: z.string().email("Invalid email address"),
     bio: z.string().min(3, "Bio must be at least 3 characters long"),
-    password: z.string().min(3, "Password is too short"),
+
   });
 
   // React Hook Form
@@ -44,135 +63,159 @@ const Profile = () => {
     },
   });
 
-  // Handle Login
-  async function onSubmit(values) {
-    try {
-      const response = await axios.post(
-        `${getEnv("VITE_API_BASE_URL")}/auth/login`,
-        {
-          email: values.email,
-          password: values.password,
-        },
-        { withCredentials: true }
-      );
-
-      if (response.data?.user) {
-        const userData = {
-          id: response.data.user.id,
-          email: response.data.user.email,
-          avatar: response.data.user.avatar || "",
-          isLogged: true,
-        };
-
-        dispatch(setUser(userData));
-        showToast("success", response.data.message);
-        navigate(RouteIndex);
-      }
-    } catch (error) {
-      console.error("Login Error:", error);
-      showToast("error", error.response?.data?.message || "Login failed");
+  useEffect(() => {
+    if (userData && userData.success) {
+      form.reset({
+        name: userData.user.name,
+        email: userData.user.email,
+        bio: userData.user.bio,
+      });
     }
-  }
+  }, [userData, form]);
+
+  useEffect(() => {
+    if (!user.user?._id) {
+      navigate(RouteIndex);
+    }
+  }, [user, navigate]);
+
+ async function onSubmit(values) {
+   try {
+     const formData = new FormData(); // ✅ Corrected typo
+     formData.append("file", file); // Ensure 'file' is defined
+     formData.append("data", JSON.stringify(values));
+
+     const response = await axios.put(
+       `${getEnv("VITE_API_BASE_URL")}/user/update-user/${userData.user._id}`,
+       formData, // ✅ Use FormData instead of raw JSON
+       {
+         withCredentials: true,
+         headers: {
+           "Content-Type": "multipart/form-data", // ✅ Required for FormData
+         },
+       }
+     );
+
+     if (response.data.success) {
+      //  dispatch(setUser(response.data.user));
+       showToast("success", "Profile updated successfully");
+       navigate(RouteIndex);
+     }
+   } catch (error) {
+     showToast("error", error.response?.data?.message || "Update failed");
+   }
+ }
+
+  const handleFileSelection = (acceptedFiles) => {
+    const file = acceptedFiles[0];
+    setFile(file)
+    const preview = URL.createObjectURL(file);
+    setFilePreview(preview);
+  };
+
+  if (loading) return <Loading />;
+  if (error) return <p className="text-red-500">Error loading profile</p>;
 
   return (
     <Card className="max-w-screen-md mx-auto">
       <CardContent>
         <div className="flex flex-col items-center mt-10">
-          <Avatar className="w-28 h-28">
-            <AvatarImage src="https://github.com/shadcn.png" alt="Profile" />
-          </Avatar>
+          <Dropzone
+            onDrop={(acceptedFiles) => handleFileSelection(acceptedFiles)}
+          >
+            {({ getRootProps, getInputProps }) => (
+              <div
+                {...getRootProps()}
+                className="flex justify-center items-center"
+              >
+                <input {...getInputProps()} />
+                <Avatar className="w-32 h-32 relative group">
+                  {" "}
+                  {/* Fixed size */}
+                  <AvatarImage
+                    src={filePreview ? filePreview : userData?.user?.avatar}
+                    alt="Profile"
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                  <div className="absolute z-10 w-full h-full top-0 left-0 flex justify-center items-center bg-black bg-opacity-20 border-2 border-violet-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer">
+                    <CiCamera color="#7c3aed" size={24} />
+                  </div>
+                </Avatar>
+              </div>
+            )}
+          </Dropzone>
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
-              {/* Name Field */}
-              <div className="mb-3">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="text"
-                          placeholder="Enter your name"
-                          autoComplete="name"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="text"
+                        placeholder="Enter your name"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              {/* Email Field */}
-              <div className="mb-3">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="Enter your email"
-                          autoComplete="email"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="Enter your email"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              {/* Bio Field */}
-              <div className="mb-3">
-                <FormField
-                  control={form.control}
-                  name="bio"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Bio</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          type="textarea"
-                          placeholder="Enter  bio"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="bio"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Bio</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Enter bio" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              {/* Password Field */}
-              <div className="mb-3">
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="Enter your password"
-                          autoComplete="current-password"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="Enter your password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              {/* Submit Button */}
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full mt-4">
                 Save Changes
               </Button>
             </form>

@@ -5,7 +5,7 @@ import { IoLogInOutline } from "react-icons/io5";
 import axios from "axios";
 import logo from "../assets/images/logo.jpg";
 import SearchBox from "./SearchBox";
-import { RouteSignIn, RouteIndex, RouteProfile } from "@/helpers/RouteName";
+import { RouteSignIn, RouteIndex } from "@/helpers/RouteName";
 
 import {
   DropdownMenu,
@@ -79,15 +79,15 @@ const Topbar = () => {
                 <p className="text-sm">{userState.user?.email}</p>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild className="cursor-pointer">
-                <Link to={RouteProfile}>
-                  <FaUser />
+              <DropdownMenuItem asChild>
+                <Link to="/profile">
+                  <FaUser className="mr-2" />
                   Profile
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild className="cursor-pointer">
+              <DropdownMenuItem asChild>
                 <Link to="/create-blog">
-                  <FaFolderPlus />
+                  <FaFolderPlus className="mr-2" />
                   Create Blog
                 </Link>
               </DropdownMenuItem>
@@ -96,7 +96,7 @@ const Topbar = () => {
                 onClick={handleLogout}
                 className="cursor-pointer"
               >
-                <MdLogout />
+                <MdLogout className="mr-2" />
                 Logout
               </DropdownMenuItem>
             </DropdownMenuContent>

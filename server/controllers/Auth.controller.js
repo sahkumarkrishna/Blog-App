@@ -38,7 +38,7 @@ export const GoogleLogin = async (req, res, next) => {
     let user = await User.findOne({ email });
 
     if (!user) {
-      const randomPassword = Math.random().toString()
+      const randomPassword = Math.random().toString();
       const hashedPassword = await bcrypt.hash(randomPassword, 10);
 
       user = new User({
@@ -68,11 +68,11 @@ export const GoogleLogin = async (req, res, next) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "None" : "Strict",
-      path: "/",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day in milliseconds
     });
 
     // Remove password before sending response
-    const userData = user.toJSON();
+    const userData = user.toObject();
     delete userData.password;
 
     res.status(200).json({
@@ -120,11 +120,11 @@ export const Login = async (req, res, next) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "None" : "Strict",
-      path: "/",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day in milliseconds
     });
 
     // Remove password before sending response
-    const userData = user.toJSON();
+    const userData = user.toObject();
     delete userData.password;
 
     res.status(200).json({
@@ -141,11 +141,10 @@ export const Login = async (req, res, next) => {
 // ✅ LOGOUT USER
 export const Logout = async (req, res, next) => {
   try {
-    res.clearCookie("token", "", {
+    res.clearCookie("token", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "None" : "Strict",
-      expires: new Date(0), // Expire the cookie immediately
       path: "/",
     });
 

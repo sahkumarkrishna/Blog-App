@@ -1,16 +1,23 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from "./Layout/Layout";
 import {
+  RouteAddCategory,
+  RouteCategoryDetails,
+  RouteEditCategory,
   RouteIndex,
   RouteProfile,
   RouteSignIn,
   RouteSignUp,
+  RouteCategories,
 } from "./helpers/RouteName";
 import Index from "./pages/Index";
 
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Profile from "./pages/Profile";
+import AddCategory from "./pages/Category/AddCategory";
+import CategoryDetails from "./pages/Category/CategoryDetails";
+import EditCategory from "./pages/Category/EditCategory";
 
 function App() {
   return (
@@ -18,8 +25,11 @@ function App() {
       <Routes>
         <Route path={RouteIndex} element={<Layout />}>
           <Route index element={<Index />} />
-          
           <Route path={RouteProfile} element={<Profile />}></Route>
+          <Route path={RouteProfile} element={<Profile />}></Route>
+          <Route path={RouteAddCategory} element={<AddCategory />}></Route>
+          <Route path={RouteEditCategory()} element={<EditCategory />}></Route>
+          <Route path={RouteCategories} element={<CategoryDetails />}></Route>
         </Route>
         <Route path={RouteSignIn} element={<SignIn />} />
         <Route path={RouteSignUp} element={<SignUp />} />

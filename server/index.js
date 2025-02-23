@@ -4,7 +4,8 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import connectDB from "./config/db.js";
 import AuthRouter from "./routes/Auth.route.js";
-
+import UserRouter from "./routes/User.route.js";
+import CategoryRoute from "./routes/Category.route.js";
 dotenv.config();
 
 
@@ -27,7 +28,8 @@ app.use(
 
 // Routes
 app.use("/api/auth", AuthRouter);
-
+app.use("/api/user", UserRouter);
+app.use("/api/category", CategoryRoute);
 // // Set Security Headers (COOP and COEP)
 // app.use((req, res, next) => {
 //   res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
