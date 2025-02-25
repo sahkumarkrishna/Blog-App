@@ -10,7 +10,7 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
-import { useFetch } from "@/hooks/useFetch"; // Ensure correct import
+import { useFetch } from "../../hooks/userFetch"; // Ensure correct import
 import { getEnv } from "@/helpers/getEnv";
 import Loading from "@/components/Loading";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
@@ -28,8 +28,6 @@ const CategoryDetails = () => {
   } = useFetch(`${getEnv("VITE_API_BASE_URL")}/category/all`);
 
   const handleDelete = async (id) => {
-   
-
     setDeletingId(id); // Set deleting state for this category
     try {
       const success = await deleteData(
@@ -37,14 +35,10 @@ const CategoryDetails = () => {
       );
 
       if (success) {
-      
         refetch(); // Refresh category list after deletion
       }
     } catch (error) {
-      showToast(
-        "error",
-        error.response?.data?.message || "An error occurred while deleting."
-      );
+      showToast("error", error.message);
     } finally {
       setDeletingId(null); // Reset deleting state
     }
@@ -57,12 +51,12 @@ const CategoryDetails = () => {
       <Card>
         <CardHeader>
           <Button asChild>
-            <Link to="/category/add">Add Category</Link>
+            <div>
+              <Link to="/category/add">Add Category</Link>
+            </div>
           </Button>
         </CardHeader>
         <CardContent>
-          {error && <p className="text-red-500">{error}</p>}
-
           {categoryData?.categories?.length > 0 ? (
             <Table>
               <TableHeader>
@@ -92,15 +86,10 @@ const CategoryDetails = () => {
                       {/* Delete Button */}
                       <Button
                         variant="outline"
-                        className="hover:bg-violet-500 hover:text-white"
+                        className="hover:bg-red-500 hover:text-white"
                         onClick={() => handleDelete(category._id)}
-                        disabled={deletingId === category._id} // Disable only the deleting button
                       >
-                        {deletingId === category._id ? (
-                          "Deleting..."
-                        ) : (
-                          <FaTrashAlt />
-                        )}
+                        <FaTrashAlt />
                       </Button>
                     </TableCell>
                   </TableRow>

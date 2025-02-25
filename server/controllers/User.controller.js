@@ -24,17 +24,12 @@ export const getUser = async (req, res, next) => {
   }
 };
 
-
-
-
 export const updateUser = async (req, res, next) => {
   try {
     const { userId } = req.params;
     if (!userId) {
       return next(handleError(400, "User ID is required"));
     }
-
-   
 
     const data = JSON.parse(req.body.data || "{}");
 

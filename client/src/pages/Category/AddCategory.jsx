@@ -1,106 +1,126 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { getEnv } from "@/helpers/getEnv";
 import { showToast } from "@/helpers/showToast";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import slugify from "slugify";
-import axios from "axios"; // ✅ FIXED: Missing import
-import { getEnv } from "@/helpers/getEnv";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import Editor from "@/components/Editor";
 
-const AddCategory = () => {
+const EditBlog = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   const formSchema = z.object({
-    name: z.string().min(3, "Name must be at least 3 characters long"),
-    slug: z.string().min(3, "Slug must be at least 3 characters long"),
+    category: z.string().min(3, "Category is required"),
+    title: z.string().min(3, "Title is required"),
+    blogContent: z.string().min(3, "Content is required"),
   });
 
   const form = useForm({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      slug: "",
-    },
+    defaultValues: { category: "", title: "", blogContent: "" },
   });
-  const categoryName = form.watch("name");
-  // ✅ FIXED: Optimized useEffect to run only when name changes
-  useEffect(() => {
-    if (categoryName) {
-      const slug = slugify(categoryName, { lower: true });
-      form.setValue("slug", slug);
-    }
-  }, [form.watch("name")]); // ✅ Added dependency array
 
-  async function onSubmit(values) {
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(
+          `${getEnv("VITE_API_BASE_URL")}/category/all`
+        );
+        setCategories(response.data.categories);
+      } catch (err) {
+        setError("Failed to load categories");
+      }
+    };
+
+    const fetchBlogDetails = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(
+          `${getEnv("VITE_API_BASE_URL")}/blog/${id}`
+        );
+        form.reset(response.data);
+      } catch (err) {
+        showToast("error", "Failed to load blog details");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+    fetchBlogDetails();
+  }, [id, form]);
+
+  const onSubmit = async (values) => {
     try {
-      const response = await axios.post(
-        `${getEnv("VITE_API_BASE_URL")}/category/add`,
+      await axios.put(
+        `${getEnv("VITE_API_BASE_URL")}/blog/update/${id}`,
         values
       );
-
-      showToast("success", response.data.message);
-      form.reset();
-    } catch (error) {
-      showToast("error", error.message);
+      showToast("success", "Blog updated successfully");
+      navigate("/blogs");
+    } catch (err) {
+      showToast("error", err.message);
     }
-  }
+  };
 
   return (
-    <div>
-      <Card className="pt-5 max-w-screen-md mx-auto">
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              <div className="mb-3">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter category name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+    <Card className="pt-5 max-w-screen-md mx-auto">
+      <CardContent>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <div className="mb-3">
+            <label>Category</label>
+            <Select {...form.register("category")}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem key={category._id} value={category._id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-              <div className="mb-3">
-                <FormField
-                  control={form.control}
-                  name="slug"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Slug</FormLabel>
-                      <FormControl>
-                        <Input type="text" placeholder="Slug" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+          <div className="mb-3">
+            <label>Title</label>
+            <Input {...form.register("title")} placeholder="Enter blog title" />
+          </div>
 
-              <Button type="submit" className="w-full">
-                Submit
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-    </div>
+          <div className="mb-3">
+            <label>Content</label>
+            <Editor
+              initialData={form.watch("blogContent")}
+              onChange={(event, editor) =>
+                form.setValue("blogContent", editor.getData())
+              }
+            />
+          </div>
+
+          <Button type="submit" className="w-full">
+            Update Blog
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 };
 
-export default AddCategory;
+export default EditBlog;

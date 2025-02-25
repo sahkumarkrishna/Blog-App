@@ -1,12 +1,10 @@
-import React, { useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { showToast } from "@/helpers/showToast";
-import { getEnv } from "@/helpers/getEnv";
 import axios from "axios";
+import { getEnv } from "@/helpers/getEnv";
 import slugify from "slugify";
+import { showToast } from "@/helpers/showToast";
 import {
   Form,
   FormControl,
@@ -18,103 +16,116 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { ToastContainer } from "react-toastify";
 
-const EditCategory = () => {
-  const { id } = useParams(); // Get category ID from the URL
- 
-  const formSchema = z.object({
-    name: z.string().min(3, "Name must be at least 3 characters long"),
-    slug: z.string().min(3, "Slug must be at least 3 characters long"),
-  });
+const EditBlog = () => {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const [loading, setLoading] = useState(false);
 
-  const form = useForm({
-    resolver: zodResolver(formSchema),
+  const { register, handleSubmit, setValue, watch } = useForm({
     defaultValues: {
-      name: "",
+      title: "",
       slug: "",
+      category: "",
+      featureImage: "",
+      content: "",
     },
   });
 
-  // Fetch category details
+  // Fetch blog data
   useEffect(() => {
-    const fetchCategory = async () => {
+    const fetchBlog = async () => {
       try {
+        setLoading(true);
         const response = await axios.get(
-          `${getEnv("VITE_API_BASE_URL")}/category/${id}`
+          `${getEnv("VITE_API_BASE_URL")}/blog/${id}`
         );
-        form.setValue("name", response.data.category.name);
+        const blog = response.data.blog;
 
-        form.setValue("slug", response.data.category.slug);
-        showToast("success", response.data.message);
+        if (blog) {
+          setValue("title", blog.title);
+          setValue("slug", blog.slug);
+          setValue("category", blog.category);
+          setValue("featureImage", blog.featureImage);
+          setValue("content", blog.content);
+          showToast("success", "Blog loaded successfully!");
+        }
       } catch (error) {
-        showToast("error", error.message);
+        console.error("Fetch Error:", error);
+        showToast("error", "Failed to load blog");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchCategory();
-  }, [id, form]);
+    fetchBlog();
+  }, [id, setValue]);
 
-  // Generate slug from name
+  // Generate slug from title
   useEffect(() => {
-    const categoryName = form.watch("name");
-    if (categoryName) {
-      form.setValue("slug", slugify(categoryName, { lower: true }));
-    }
-  }, [form.watch("name")]);
+    setValue("slug", slugify(watch("title"), { lower: true }));
+  }, [watch("title"), setValue]);
 
   // Handle form submission
-  async function onSubmit(values) {
+  const onSubmit = async (values) => {
     try {
-      await axios.put(`${getEnv("VITE_API_BASE_URL")}/category/${id}`, values);
-
-      
+      await axios.put(`${getEnv("VITE_API_BASE_URL")}/blog/${id}`, values);
+      showToast("success", "Blog updated successfully!");
+      navigate("/blogs");
     } catch (error) {
-      showToast("error", error.message);
+      console.error("Update Error:", error);
+      showToast("error", "Failed to update blog");
     }
-  }
+  };
 
   return (
     <div>
+      <ToastContainer />
       <Card className="pt-5 max-w-screen-md mx-auto">
         <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              <div className="mb-3">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter category name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+          <Form onSubmit={handleSubmit(onSubmit)}>
+            <div className="mb-3">
+              <FormLabel>Title</FormLabel>
+              <FormControl>
+                <Input {...register("title")} placeholder="Enter blog title" />
+              </FormControl>
+            </div>
 
-              <div className="mb-3">
-                <FormField
-                  control={form.control}
-                  name="slug"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Slug</FormLabel>
-                      <FormControl>
-                        <Input type="text" placeholder="Slug" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+            <div className="mb-3">
+              <FormLabel>Slug</FormLabel>
+              <FormControl>
+                <Input {...register("slug")} placeholder="Slug" readOnly />
+              </FormControl>
+            </div>
 
-              <Button type="submit" className="w-full">
-                Update Category
-              </Button>
-            </form>
+            <div className="mb-3">
+              <FormLabel>Category</FormLabel>
+              <FormControl>
+                <Input {...register("category")} placeholder="Category" />
+              </FormControl>
+            </div>
+
+            <div className="mb-3">
+              <FormLabel>Feature Image URL</FormLabel>
+              <FormControl>
+                <Input {...register("featureImage")} placeholder="Image URL" />
+              </FormControl>
+            </div>
+
+            <div className="mb-3">
+              <FormLabel>Blog Content</FormLabel>
+              <FormControl>
+                <textarea
+                  {...register("content")}
+                  className="w-full h-40 p-2 border rounded"
+                />
+              </FormControl>
+            </div>
+
+            <Button type="submit" className="w-full">
+              {loading ? "Updating..." : "Update Blog"}
+            </Button>
           </Form>
         </CardContent>
       </Card>
@@ -122,4 +133,4 @@ const EditCategory = () => {
   );
 };
 
-export default EditCategory;
+export default EditBlog;

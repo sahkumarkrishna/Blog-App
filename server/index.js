@@ -6,8 +6,8 @@ import connectDB from "./config/db.js";
 import AuthRouter from "./routes/Auth.route.js";
 import UserRouter from "./routes/User.route.js";
 import CategoryRoute from "./routes/Category.route.js";
+import BlogRouter from "./routes/Blog.route.js";
 dotenv.config();
-
 
 const PORT = process.env.PORT || 5000;
 const app = express();
@@ -30,13 +30,7 @@ app.use(
 app.use("/api/auth", AuthRouter);
 app.use("/api/user", UserRouter);
 app.use("/api/category", CategoryRoute);
-// // Set Security Headers (COOP and COEP)
-// app.use((req, res, next) => {
-//   res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
-//   res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
-//   next();
-// });
-
+app.use("/api/blog", BlogRouter); // Ensure this line is correct
 
 // Global Error Handling Middleware
 app.use((err, req, res, next) => {

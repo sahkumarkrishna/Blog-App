@@ -14,9 +14,15 @@ import { IoHome } from "react-icons/io5";
 import { BiSolidCategory } from "react-icons/bi";
 import { FaBlog, FaComment, FaUserTie } from "react-icons/fa";
 import { GoDotFill } from "react-icons/go";
-import { RouteCategoryDetails } from "@/helpers/RouteName";
+import { RouteBlog, RouteCategoryDetails } from "@/helpers/RouteName";
+import { useFetch } from "@/hooks/userFetch";
+import { getEnv } from "@/helpers/getEnv";
 
 const AppSidebar = () => {
+  const { data: categoryData } = useFetch(
+    `${getEnv("VITE_API_BASE_URL")}/category/all`
+  );
+
   return (
     <Sidebar>
       <SidebarHeader className="bg-white">
@@ -41,7 +47,7 @@ const AppSidebar = () => {
           <SidebarMenuItem>
             <SidebarMenuButton>
               <FaBlog />
-              <Link to="/">Blogs</Link>
+              <Link to={RouteBlog}>Blogs</Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
 
@@ -64,12 +70,18 @@ const AppSidebar = () => {
         <div>
           <SidebarGroupLabel>Categories</SidebarGroupLabel>
           <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton>
-                <GoDotFill />
-                <Link to="/">Category item</Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            {categoryData && categoryData.categories ? (
+              categoryData.categories.map((category) => (
+                <SidebarMenuItem key={category.id}>
+                  <SidebarMenuButton>
+                    <GoDotFill />
+                    <Link to={`/category/${category.id}`}>{category.name}</Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))
+            ) : (
+              <p className="p-2 text-gray-500">Loading categories...</p>
+            )}
           </SidebarMenu>
         </div>
       </SidebarContent>
