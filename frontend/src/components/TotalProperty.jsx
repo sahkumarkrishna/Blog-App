@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios'
 import { setBlog } from '@/redux/blogSlice'
+const API_URL = import.meta.env.VITE_API_URL;
 
 const TotalProperty = () => {
     const { blog } = useSelector(store => store.blog) || { blog: [] }
@@ -13,7 +14,7 @@ const TotalProperty = () => {
 
     const getOwnBlog = async () => {
         try {
-            const res = await axios.get(`https://mern-blog-ha28.onrender.com/api/v1/blog/get-own-blogs`, { withCredentials: true })
+            const res = await axios.get(`${API_URL}/blog/get-own-blogs`, { withCredentials: true })
             if (res.data.success) {
                 dispatch(setBlog(res.data.blogs))
             }
@@ -23,7 +24,7 @@ const TotalProperty = () => {
     }
     const getTotalComments = async()=>{
         try {
-          const res = await axios.get(`http://localhost:5000/api/v1/comment/my-blogs/comments`,{withCredentials:true})
+          const res = await axios.get(`${API_URL}/comment/my-blogs/comments`,{withCredentials:true})
           if(res.data.success){
              setTotalComments(res.data.totalComments)
           }
@@ -34,7 +35,7 @@ const TotalProperty = () => {
 
     const getTotalLikes = async()=>{
       try {
-        const res = await axios.get(`http://localhost:5000/api/v1/blog/my-blogs/likes`,{withCredentials:true})
+        const res = await axios.get(`${API_URL}/blog/my-blogs/likes`,{withCredentials:true})
         if(res.data.success){
            setTotalLikes(res.data.totalLikes)
         }

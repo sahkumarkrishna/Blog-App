@@ -7,6 +7,7 @@ import UserLogo from "../assets/user.jpg"
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useSelector } from 'react-redux';
 
+
 const ResponsiveMenu = ({ openNav, setOpenNav, logoutHandler }) => {
     const {user} = useSelector(store=>store.auth)
 

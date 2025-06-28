@@ -10,6 +10,7 @@ import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
+const API_URL = import.meta.env.VITE_API_URL;
 
 const CreateBlog = () => {
     const [loading, setLoading] = useState(false)
@@ -25,7 +26,7 @@ const CreateBlog = () => {
         
         try {
             setLoading(true)
-            const res = await axios.post(`http://localhost:5000/api/v1/blog/`, { title, category }, {
+            const res = await axios.post(`${API_URL}/blog/`, { title, category }, {
                 headers: {
                     "Content-Type": "application/json",
                 },

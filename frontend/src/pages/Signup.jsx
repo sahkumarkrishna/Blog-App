@@ -8,6 +8,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { toast } from 'sonner'
 import auth from "../assets/auth.jpg"
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Signup = () => {
 
@@ -32,7 +33,7 @@ const Signup = () => {
         console.log(user)
 
         try {
-            const response = await axios.post(`http://localhost:5000/api/v1/user/register`, user, {
+            const response = await axios.post(`${API_URL}/user/register`, user, {
                 headers: {
                     "Content-Type": "application/json",
                 },
