@@ -22,7 +22,6 @@ import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { setUser } from '@/redux/authSlice'
 import TotalProperty from '@/components/TotalProperty'
-const API_URL = import.meta.env.VITE_API_URL;
 
 const Profile = () => {
     const dispatch = useDispatch()
@@ -70,7 +69,7 @@ const Profile = () => {
 
         try {
             setLoading(true)
-            const res = await axios.put(`${API_URL}/user/profile/update`, formData, {
+            const res = await axios.put(`http://localhost:5000/api/v1/user/profile/update`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data"
                 },

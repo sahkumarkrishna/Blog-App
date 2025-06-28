@@ -1,13 +1,12 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import userLogo from "../assets/user.jpg"
-const API_URL = import.meta.env.VITE_API_URL;
 
 const PopularAuthors = () => {
     const [popularUser, setPopularUser] = useState([])
     const getAllUsers = async () => {
         try {
-            const res = await axios.get(`${API_URL}/user/all-users`)
+            const res = await axios.get(`http://localhost:5000/api/v1/user/all-users`)
             if (res.data.success) {
                 setPopularUser(res.data.users)
             }

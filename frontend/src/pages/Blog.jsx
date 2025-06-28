@@ -5,7 +5,7 @@ import axios from 'axios'
 import { useDispatch, useSelector } from 'react-redux'
 import { setBlog } from '@/redux/blogSlice'
 // import BlogCardList from '@/components/BlogCardList'
-const API_URL = import.meta.env.VITE_API_URL;
+
 export const blogJson = [
     {
         "id": 1,
@@ -68,7 +68,7 @@ const Blog = () => {
     useEffect(() => {
         const getAllPublsihedBlogs = async () => {
             try {
-                const res = await axios.get(`${API_URL}/blog/get-published-blogs`, { withCredentials: true })
+                const res = await axios.get(`http://localhost:5000/api/v1/blog/get-published-blogs`, { withCredentials: true })
                 if (res.data.success) {
                     dispatch(setBlog(res.data.blogs))
                 }
