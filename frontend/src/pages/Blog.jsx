@@ -68,7 +68,8 @@ const Blog = () => {
     useEffect(() => {
         const getAllPublsihedBlogs = async () => {
             try {
-                const res = await axios.get(`https://blog-app-rouge-sigma.vercel.app/api/v1/blog/get-published-blogs`, { withCredentials: true })
+                const res = await axios.get(`https://blog-app-rouge-sigma.vercel.app/api/v1/blog/get-published-blogs`)
+
                 if (res.data.success) {
                     dispatch(setBlog(res.data.blogs))
                 }
