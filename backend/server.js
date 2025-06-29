@@ -12,13 +12,21 @@ import cors from 'cors';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+if (!process.env.MONGO_URI) {
+    console.error('MONGO_URI is not defined. Check your .env file.');
+    process.exit(1);
+}
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
+
 app.use(cors({
     origin: process.env.FRONTEND_URL || "https://blog-app-zosx.vercel.app",
     credentials: true
 }));
+
+
 
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/blog", blogRoute);
@@ -26,6 +34,6 @@ app.use("/api/v1/comment", commentRoute);
 
 connectDB().then(() => {
     app.listen(PORT, () => {
-        console.log(`Server listening at port ${PORT}`);
+        console.log(`Server listen at port ${PORT}`);
     });
 });
