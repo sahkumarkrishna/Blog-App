@@ -21,12 +21,17 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
+const allowedOrigin = process.env.FRONTEND_URL || "https://blog-app-zosx.vercel.app";
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL || "https://blog-app-zosx.vercel.app",
+    origin: allowedOrigin,
     credentials: true
 }));
 
-
+app.options('*', cors({
+    origin: allowedOrigin,
+    credentials: true
+}));
 
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/blog", blogRoute);
@@ -34,6 +39,6 @@ app.use("/api/v1/comment", commentRoute);
 
 connectDB().then(() => {
     app.listen(PORT, () => {
-        console.log(`Server listen at port ${PORT}`);
+        console.log(`Server listening at port ${PORT}`);
     });
 });
