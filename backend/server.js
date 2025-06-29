@@ -12,10 +12,7 @@ import cors from 'cors';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-if (!process.env.MONGO_URI) {
-    console.error('MONGO_URI is not defined. Check your .env file.');
-    process.exit(1);
-}
+
 
 app.use(express.json());
 app.use(cookieParser());
@@ -28,13 +25,6 @@ app.use(cors({
     credentials: true
 }));
 
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Origin', allowedOrigin);
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept,Authorization');
-    next();
-});
 
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/blog", blogRoute);
