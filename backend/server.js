@@ -12,7 +12,10 @@ import cors from 'cors';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-
+if (!process.env.MONGO_URI) {
+    console.error('MONGO_URI is not defined. Check your .env file.');
+    process.exit(1);
+}
 
 app.use(express.json());
 app.use(cookieParser());
