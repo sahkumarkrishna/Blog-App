@@ -10,7 +10,7 @@ const Comments = () => {
     const navigate = useNavigate()
     const getTotalComments = async()=>{
         try {
-          const res = await axios.get(`https://blog-app-rouge-sigma.vercel.app/api/v1/comment/my-blogs/comments`,{withCredentials:true})
+          const res = await axios.get(`https://blog-app-xqmy.onrender.com/api/v1/comment/my-blogs/comments`,{withCredentials:true})
           if(res.data.success){
             setAllComments(res.data.comments)
           }

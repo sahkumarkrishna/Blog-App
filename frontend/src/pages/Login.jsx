@@ -32,7 +32,7 @@ const Login = () => {
     console.log(input);
 
     try {
-      const response = await axios.post(`https://blog-app-rouge-sigma.vercel.app/api/v1/user/login`, input, {
+      const response = await axios.post(`https://blog-app-xqmy.onrender.com/api/v1/user/login`, input, {
         headers: {
           "Content-Type": "application/json"
         },
