@@ -1,3 +1,7 @@
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { Eye } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import {
   Table,
@@ -8,10 +12,6 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import axios from 'axios';
-import { Eye } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 const Comments = () => {
   const [allComments, setAllComments] = useState([]);
@@ -38,7 +38,7 @@ const Comments = () => {
   return (
     <div className="pb-10 pt-20 md:ml-[320px] h-screen">
       <div className="max-w-6xl mx-auto mt-8">
-        <Card className="w-full p-5 space-y-2 dark:bg-gray-800">
+        <Card className="w-full p-5 dark:bg-gray-800">
           <Table>
             <TableCaption>A list of your recent comments.</TableCaption>
             <TableHeader>
@@ -53,20 +53,27 @@ const Comments = () => {
               {allComments?.map((comment) => (
                 <TableRow key={comment._id}>
                   <TableCell className="font-medium">
-                    {comment.postId?.title || 'N/A'}
+                    {comment?.postId?.title || 'N/A'}
                   </TableCell>
-                  <TableCell>{comment.content}</TableCell>
-                  <TableCell>{comment.userId?.firstName || 'N/A'}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell>{comment?.content || 'No comment'}</TableCell>
+                  <TableCell>{comment?.userId?.firstName || 'Unknown'}</TableCell>
+                  <TableCell className="text-center">
                     <Eye
-                      className="cursor-pointer"
+                      className="cursor-pointer text-blue-500 hover:scale-110 transition"
                       onClick={() =>
-                        navigate(`/blogs/${comment.postId?._id}`)
+                        navigate(`/blogs/${comment?.postId?._id}`)
                       }
                     />
                   </TableCell>
                 </TableRow>
               ))}
+              {allComments.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center text-gray-500">
+                    No comments found.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </Card>
